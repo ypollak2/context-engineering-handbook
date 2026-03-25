@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Context Engineering Pattern Finder</title>
+  <style>
+    :root {
+      --bg: #f8f9fa;
+      --bg-card: #ffffff;
+      --text: #1a1a2e;
+      --text-muted: #6b7280;
+      --border: #e5e7eb;
+      --accent-compression: #ef4444;
+      --accent-retrieval: #3b82f6;
+      --accent-construction: #8b5cf6;
+      --accent-isolation: #f59e0b;
+      --accent-persistence: #10b981;
+      --accent-optimization: #ec4899;
+      --accent-evaluation: #06b6d4;
+      --shadow: 0 4px 24px rgba(0,0,0,0.08);
+      --radius: 12px;
+      --transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0f172a;
+        --bg-card: #1e293b;
+        --text: #e2e8f0;
+        --text-muted: #94a3b8;
+        --border: #334155;
+        --shadow: 0 4px 24px rgba(0,0,0,0.3);
+      }
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      line-height: 1.6;
+    }
+
+    header {
+      text-align: center;
+      padding: 2.5rem 1rem 1rem;
+    }
+
+    header h1 {
+      font-size: clamp(1.5rem, 4vw, 2.25rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    header p {
+      color: var(--text-muted);
+      margin-top: 0.5rem;
+      font-size: 1.05rem;
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 1.5rem 1rem 3rem;
+    }
+
+    .card-container {
+      width: 100%;
+      max-width: 640px;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 2rem;
+      animation: cardIn 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .progress {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 1.5rem;
+      justify-content: center;
+    }
+
+    .progress-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--border);
+      transition: background var(--transition), transform var(--transition);
+    }
+
+    .progress-dot.filled {
+      transform: scale(1.25);
+    }
+
+    .card h2 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 1.25rem;
+    }
+
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 0.625rem;
+    }
+
+    .option-btn {
+      display: block;
+      width: 100%;
+      text-align: left;
+      padding: 0.875rem 1.125rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: border-color var(--transition), background var(--transition), transform 0.15s ease;
+    }
+
+    .option-btn:hover {
+      border-color: var(--text-muted);
+      background: var(--bg-card);
+      transform: translateX(4px);
+    }
+
+    .option-btn:active {
+      transform: translateX(2px);
+    }
+
+    .result-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .result-badge {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 0.25rem 0.6rem;
+      border-radius: 999px;
+      color: #fff;
+    }
+
+    .result-name {
+      font-size: 1.4rem;
+      font-weight: 700;
+    }
+
+    .result-desc {
+      color: var(--text-muted);
+      margin-bottom: 1.25rem;
+      font-size: 1rem;
+    }
+
+    .result-link {
+      display: inline-block;
+      padding: 0.6rem 1.25rem;
+      border-radius: 8px;
+      color: #fff;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: opacity 0.2s;
+    }
+
+    .result-link:hover { opacity: 0.85; }
+
+    .also-consider {
+      margin-top: 1.5rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .also-consider h3 {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      margin-bottom: 0.625rem;
+    }
+
+    .related-list {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .related-list li a {
+      display: inline-block;
+      padding: 0.35rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      text-decoration: none;
+      font-size: 0.85rem;
+      transition: border-color 0.2s;
+    }
+
+    .related-list li a:hover {
+      border-color: var(--text-muted);
+    }
+
+    .restart-btn {
+      display: inline-block;
+      margin-top: 1.5rem;
+      padding: 0.6rem 1.5rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: transparent;
+      color: var(--text);
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .restart-btn:hover {
+      background: var(--bg);
+    }
+
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      border: none;
+      background: none;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      cursor: pointer;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0;
+      transition: color 0.2s;
+    }
+
+    .back-btn:hover { color: var(--text); }
+    .back-btn svg { width: 16px; height: 16px; }
+
+    footer {
+      text-align: center;
+      padding: 1.5rem 1rem;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      border-top: 1px solid var(--border);
+    }
+
+    @media (max-width: 480px) {
+      .card { padding: 1.25rem; }
+      header { padding: 1.5rem 1rem 0.5rem; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Context Engineering Pattern Finder</h1>
+    <p>Answer a few questions to find the right pattern for your problem.</p>
+  </header>
+
+  <main>
+    <div class="card-container" id="container"></div>
+  </main>
+
+  <footer>Part of the Context Engineering Handbook</footer>
+
+  <script>
+    (function() {
+      'use strict';
+
+      var CATEGORIES = {
+        compression:   { label: 'Compression',   color: '#ef4444' },
+        retrieval:     { label: 'Retrieval',      color: '#3b82f6' },
+        construction:  { label: 'Construction',   color: '#8b5cf6' },
+        isolation:     { label: 'Isolation',      color: '#f59e0b' },
+        persistence:   { label: 'Persistence',    color: '#10b981' },
+        optimization:  { label: 'Optimization',   color: '#ec4899' },
+        evaluation:    { label: 'Evaluation',     color: '#06b6d4' },
+      };
+
+      var PATTERNS = {
+        'conversation-compaction': {
+          name: 'Conversation Compaction',
+          category: 'compression',
+          desc: 'Summarize long conversation histories to reclaim context window space while preserving essential information.',
+          path: '../patterns/compression/README.md',
+          related: ['observation-masking', 'context-rot-detection'],
+        },
+        'observation-masking': {
+          name: 'Observation Masking',
+          category: 'compression',
+          desc: 'Filter and compress verbose tool outputs so they contribute information without consuming excessive tokens.',
+          path: '../patterns/compression/README.md',
+          related: ['conversation-compaction', 'kv-cache-optimization'],
+        },
+        'rag-context-assembly': {
+          name: 'RAG Context Assembly',
+          category: 'retrieval',
+          desc: 'Retrieve and assemble relevant external knowledge into the context at query time.',
+          path: '../patterns/retrieval/README.md',
+          related: ['just-in-time-retrieval', 'semantic-tool-selection'],
+        },
+        'semantic-tool-selection': {
+          name: 'Semantic Tool Selection',
+          category: 'retrieval',
+          desc: 'Dynamically choose which tools to include in context based on the current task, instead of loading all tools at once.',
+          path: '../patterns/retrieval/README.md',
+          related: ['rag-context-assembly', 'progressive-disclosure'],
+        },
+        'just-in-time-retrieval': {
+          name: 'Just-in-Time Retrieval',
+          category: 'retrieval',
+          desc: 'Fetch context dynamically as the task evolves rather than front-loading everything upfront.',
+          path: '../patterns/retrieval/README.md',
+          related: ['progressive-disclosure', 'rag-context-assembly'],
+        },
+        'system-prompt-architecture': {
+          name: 'System Prompt Architecture',
+          category: 'construction',
+          desc: 'Structure your system prompts into composable, well-organized sections instead of monolithic blocks.',
+          path: '../patterns/construction/README.md',
+          related: ['progressive-disclosure', 'few-shot-curation'],
+        },
+        'progressive-disclosure': {
+          name: 'Progressive Disclosure',
+          category: 'construction',
+          desc: 'Reveal information incrementally as the agent needs it, rather than front-loading the entire context.',
+          path: '../patterns/construction/README.md',
+          related: ['just-in-time-retrieval', 'system-prompt-architecture'],
+        },
+        'few-shot-curation': {
+          name: 'Few-Shot Curation',
+          category: 'construction',
+          desc: 'Select and maintain high-quality, task-relevant examples in your prompts instead of generic ones.',
+          path: '../patterns/construction/README.md',
+          related: ['system-prompt-architecture', 'rag-context-assembly'],
+        },
+        'sub-agent-delegation': {
+          name: 'Sub-Agent Delegation',
+          category: 'isolation',
+          desc: 'Offload sub-tasks to child agents with their own context windows to keep the parent context clean.',
+          path: '../patterns/isolation/README.md',
+          related: ['multi-agent-context-orchestration', 'observation-masking'],
+        },
+        'multi-agent-context-orchestration': {
+          name: 'Multi-Agent Context Orchestration',
+          category: 'isolation',
+          desc: 'Coordinate context sharing between multiple agents working on related tasks.',
+          path: '../patterns/isolation/README.md',
+          related: ['sub-agent-delegation', 'episodic-memory'],
+        },
+        'episodic-memory': {
+          name: 'Episodic Memory',
+          category: 'persistence',
+          desc: 'Store and retrieve memories from past sessions to give agents long-term knowledge.',
+          path: '../patterns/persistence/README.md',
+          related: ['filesystem-as-memory', 'multi-agent-context-orchestration'],
+        },
+        'filesystem-as-memory': {
+          name: 'Filesystem-as-Memory',
+          category: 'persistence',
+          desc: 'Use plain files (markdown, JSON) as a simple, human-readable persistence layer for agent memory.',
+          path: '../patterns/persistence/README.md',
+          related: ['episodic-memory', 'system-prompt-architecture'],
+        },
+        'kv-cache-optimization': {
+          name: 'KV-Cache Optimization',
+          category: 'optimization',
+          desc: 'Structure prompts to maximize key-value cache hits, reducing latency and cost on repeated calls.',
+          path: '../patterns/optimization/README.md',
+          related: ['observation-masking', 'conversation-compaction'],
+        },
+        'error-preservation': {
+          name: 'Error Preservation',
+          category: 'optimization',
+          desc: 'Persist error context across attempts so the agent does not repeat the same mistakes.',
+          path: '../patterns/optimization/README.md',
+          related: ['episodic-memory', 'context-rot-detection'],
+        },
+        'context-rot-detection': {
+          name: 'Context Rot Detection',
+          category: 'evaluation',
+          desc: 'Monitor and detect when accumulated context starts degrading agent output quality.',
+          path: '../patterns/evaluation/README.md',
+          related: ['conversation-compaction', 'error-preservation'],
+        },
+      };
+
+      var TREE = {
+        root: {
+          question: "What's your primary challenge?",
+          options: [
+            { text: 'My context window is running out of space', next: 'compression' },
+            { text: "My agent doesn't have the right information", next: 'retrieval' },
+            { text: 'I need to structure my prompts better', next: 'construction' },
+            { text: "I'm running multiple agents", next: 'isolation' },
+            { text: 'My agent forgets things between sessions', next: 'persistence' },
+            { text: 'My agent is slow or expensive', next: 'optimization' },
+            { text: "My agent's quality degrades over time", next: 'evaluation' },
+          ],
+        },
+        compression: {
+          question: 'What kind of context bloat are you experiencing?',
+          category: 'compression',
+          options: [
+            { text: 'Long conversations losing context', result: 'conversation-compaction' },
+            { text: 'Tool outputs cluttering the context', result: 'observation-masking' },
+          ],
+        },
+        retrieval: {
+          question: 'What information problem are you facing?',
+          category: 'retrieval',
+          options: [
+            { text: 'Need to pull in external knowledge', result: 'rag-context-assembly' },
+            { text: 'Too many tools to fit in context', result: 'semantic-tool-selection' },
+            { text: 'Context should update dynamically as task evolves', result: 'just-in-time-retrieval' },
+          ],
+        },
+        construction: {
+          question: 'What prompt structuring problem do you have?',
+          category: 'construction',
+          options: [
+            { text: 'System prompts are messy/monolithic', result: 'system-prompt-architecture' },
+            { text: 'Front-loading too much information', result: 'progressive-disclosure' },
+            { text: "Examples in my prompt aren't relevant", result: 'few-shot-curation' },
+          ],
+        },
+        isolation: {
+          question: 'What multi-agent challenge are you facing?',
+          category: 'isolation',
+          options: [
+            { text: 'Sub-tasks polluting main context', result: 'sub-agent-delegation' },
+            { text: 'Multiple agents need to share context', result: 'multi-agent-context-orchestration' },
+          ],
+        },
+        persistence: {
+          question: 'What kind of memory do you need?',
+          category: 'persistence',
+          options: [
+            { text: 'Need to remember past sessions', result: 'episodic-memory' },
+            { text: 'Want simple, human-readable memory', result: 'filesystem-as-memory' },
+          ],
+        },
+        optimization: {
+          question: 'What performance problem are you seeing?',
+          category: 'optimization',
+          options: [
+            { text: 'API calls are slow/expensive', result: 'kv-cache-optimization' },
+            { text: 'Agent keeps repeating the same mistakes', result: 'error-preservation' },
+          ],
+        },
+        evaluation: {
+          question: 'What quality issue are you noticing?',
+          category: 'evaluation',
+          options: [
+            { text: 'Agent quality degrades over long sessions', result: 'context-rot-detection' },
+          ],
+        },
+      };
+
+      // --- State ---
+      var history = [];
+      var currentNode = 'root';
+      var currentResult = null;
+      var container = document.getElementById('container');
+
+      // --- Helpers ---
+      function esc(str) {
+        var div = document.createElement('div');
+        div.appendChild(document.createTextNode(str));
+        return div.textContent;
+      }
+
+      function getAccentColor() {
+        if (currentResult) {
+          return CATEGORIES[PATTERNS[currentResult].category].color;
+        }
+        var node = TREE[currentNode];
+        if (node && node.category) return CATEGORIES[node.category].color;
+        return '#6b7280';
+      }
+
+      function getTotalSteps() {
+        return currentResult ? history.length + 1 : history.length + 2;
+      }
+
+      // --- DOM builders ---
+      function buildProgressBar(accent) {
+        var total = getTotalSteps();
+        var current = history.length + 1;
+        var wrap = document.createElement('div');
+        wrap.className = 'progress';
+        for (var i = 0; i < total; i++) {
+          var dot = document.createElement('span');
+          dot.className = 'progress-dot' + (i < current ? ' filled' : '');
+          if (i < current) dot.style.background = accent;
+          wrap.appendChild(dot);
+        }
+        return wrap;
+      }
+
+      function buildBackButton() {
+        if (history.length === 0) return null;
+        var btn = document.createElement('button');
+        btn.className = 'back-btn';
+        btn.setAttribute('aria-label', 'Go back');
+        var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.setAttribute('viewBox', '0 0 24 24');
+        svg.setAttribute('fill', 'none');
+        svg.setAttribute('stroke', 'currentColor');
+        svg.setAttribute('stroke-width', '2');
+        svg.setAttribute('stroke-linecap', 'round');
+        svg.setAttribute('stroke-linejoin', 'round');
+        var p1 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        p1.setAttribute('d', 'M19 12H5');
+        var p2 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        p2.setAttribute('d', 'M12 5l-7 7 7 7');
+        svg.appendChild(p1);
+        svg.appendChild(p2);
+        btn.appendChild(svg);
+        btn.appendChild(document.createTextNode(' Back'));
+        btn.addEventListener('click', goBack);
+        return btn;
+      }
+
+      function buildOptionButton(text, handler) {
+        var btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.textContent = text;
+        btn.addEventListener('click', handler);
+        return btn;
+      }
+
+      function buildQuestionCard(nodeKey) {
+        var node = TREE[nodeKey];
+        var accent = getAccentColor();
+
+        var card = document.createElement('div');
+        card.className = 'card';
+
+        var back = buildBackButton();
+        if (back) card.appendChild(back);
+        card.appendChild(buildProgressBar(accent));
+
+        var h2 = document.createElement('h2');
+        h2.textContent = node.question;
+        card.appendChild(h2);
+
+        var opts = document.createElement('div');
+        opts.className = 'options';
+        node.options.forEach(function(opt) {
+          if (opt.result) {
+            opts.appendChild(buildOptionButton(opt.text, function() { showResult(opt.result); }));
+          } else {
+            opts.appendChild(buildOptionButton(opt.text, function() { navigate(opt.next); }));
+          }
+        });
+        card.appendChild(opts);
+        return card;
+      }
+
+      function buildResultCard(patternKey) {
+        var p = PATTERNS[patternKey];
+        var cat = CATEGORIES[p.category];
+        var accent = cat.color;
+
+        var card = document.createElement('div');
+        card.className = 'card';
+
+        var back = buildBackButton();
+        if (back) card.appendChild(back);
+        card.appendChild(buildProgressBar(accent));
+
+        // Header with badge
+        var header = document.createElement('div');
+        header.className = 'result-header';
+        var badge = document.createElement('span');
+        badge.className = 'result-badge';
+        badge.style.background = accent;
+        badge.textContent = cat.label;
+        header.appendChild(badge);
+        card.appendChild(header);
+
+        // Name
+        var name = document.createElement('div');
+        name.className = 'result-name';
+        name.textContent = p.name;
+        card.appendChild(name);
+
+        // Desc
+        var desc = document.createElement('p');
+        desc.className = 'result-desc';
+        desc.textContent = p.desc;
+        card.appendChild(desc);
+
+        // Link
+        var link = document.createElement('a');
+        link.className = 'result-link';
+        link.href = p.path;
+        link.style.background = accent;
+        link.textContent = 'Read the Pattern Guide';
+        card.appendChild(link);
+
+        // Also consider
+        var also = document.createElement('div');
+        also.className = 'also-consider';
+        var h3 = document.createElement('h3');
+        h3.textContent = 'Also Consider';
+        also.appendChild(h3);
+
+        var ul = document.createElement('ul');
+        ul.className = 'related-list';
+        p.related.forEach(function(rk) {
+          var rp = PATTERNS[rk];
+          var li = document.createElement('li');
+          var a = document.createElement('a');
+          a.href = rp.path;
+          a.textContent = rp.name;
+          li.appendChild(a);
+          ul.appendChild(li);
+        });
+        also.appendChild(ul);
+        card.appendChild(also);
+
+        // Restart
+        var restart = document.createElement('button');
+        restart.className = 'restart-btn';
+        restart.textContent = 'Start Over';
+        restart.addEventListener('click', restartFlow);
+        card.appendChild(restart);
+
+        return card;
+      }
+
+      // --- Navigation ---
+      function render() {
+        while (container.firstChild) {
+          container.removeChild(container.firstChild);
+        }
+        if (currentResult) {
+          container.appendChild(buildResultCard(currentResult));
+        } else {
+          container.appendChild(buildQuestionCard(currentNode));
+        }
+      }
+
+      function navigate(nodeKey) {
+        history.push(currentNode);
+        currentNode = nodeKey;
+        currentResult = null;
+        render();
+      }
+
+      function showResult(patternKey) {
+        history.push(currentNode);
+        currentResult = patternKey;
+        render();
+      }
+
+      function goBack() {
+        if (history.length === 0) return;
+        currentNode = history.pop();
+        currentResult = null;
+        render();
+      }
+
+      function restartFlow() {
+        history = [];
+        currentNode = 'root';
+        currentResult = null;
+        render();
+      }
+
+      // Initial render
+      render();
+    })();
+  </script>
+</body>
+</html>
