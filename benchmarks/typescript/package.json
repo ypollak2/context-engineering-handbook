@@ -1,0 +1,22 @@
+{
+  "name": "context-engineering-benchmarks",
+  "version": "1.0.0",
+  "description": "Benchmark suite for evaluating context engineering quality",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "start": "node --loader ts-node/esm src/runner.ts",
+    "benchmark": "node --loader ts-node/esm src/runner.ts"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.20.0",
+    "commander": "^12.0.0",
+    "gpt-tokenizer": "^2.1.0",
+    "openai": "^4.28.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  }
+}

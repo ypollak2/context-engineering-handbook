@@ -1,0 +1,25 @@
+{
+  "name": "context-engineering-langchain",
+  "version": "1.0.0",
+  "description": "Context Engineering Handbook patterns implemented with LangChain",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "progressive-disclosure": "tsx progressive-disclosure.ts",
+    "conversation-compaction": "tsx conversation-compaction.ts",
+    "rag-context-assembly": "tsx rag-context-assembly.ts",
+    "semantic-tool-selection": "tsx semantic-tool-selection.ts",
+    "sub-agent-delegation": "tsx sub-agent-delegation.ts"
+  },
+  "dependencies": {
+    "@langchain/core": "^0.3.0",
+    "@langchain/openai": "^0.3.0",
+    "@langchain/anthropic": "^0.3.0",
+    "@langchain/community": "^0.3.0",
+    "langchain": "^0.3.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0"
+  }
+}

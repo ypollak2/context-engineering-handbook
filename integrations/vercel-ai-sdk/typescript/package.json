@@ -1,0 +1,20 @@
+{
+  "name": "context-engineering-vercel-ai-sdk",
+  "version": "1.0.0",
+  "description": "Context Engineering Handbook patterns implemented with Vercel AI SDK",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "progressive-disclosure": "tsx progressive-disclosure.ts",
+    "conversation-compaction": "tsx conversation-compaction.ts",
+    "error-preservation": "tsx error-preservation.ts"
+  },
+  "dependencies": {
+    "ai": "^4.0.0",
+    "@ai-sdk/openai": "^1.0.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0"
+  }
+}

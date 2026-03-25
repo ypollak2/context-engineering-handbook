@@ -1,0 +1,19 @@
+{
+  "name": "context-engineering-llamaindex",
+  "version": "1.0.0",
+  "description": "Context Engineering Handbook patterns implemented with LlamaIndex",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "rag-context-assembly": "tsx rag-context-assembly.ts",
+    "episodic-memory": "tsx episodic-memory.ts",
+    "context-rot-detection": "tsx context-rot-detection.ts"
+  },
+  "dependencies": {
+    "llamaindex": "^0.7.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0"
+  }
+}
